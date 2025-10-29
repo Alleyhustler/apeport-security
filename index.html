@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apeport Security</title>
+    <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+  font-family: "Didact Gothic", sans-serif;
+            background: #ffffff;
+            color: #888;
+            overflow-x: hidden;
+            cursor: default;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: linear-gradient(to bottom, #ffffff 0%, rgba(255, 255, 255, 0.95) 80%, transparent 100%);
+        }
+
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: #1a1a1a;
+            border: 2px solid #333;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #666;
+        }
+
+                .logo img {
+            width: 110px;
+            height: 110px;
+            background: #1a1a1a;
+            border: 2px solid #333;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #666;
+        }
+
+        .title {
+            font-size: 1.8rem;
+            letter-spacing: 4px;
+            color: #999;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        .social-link {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            transition: color 0.3s;
+            border-bottom: 1px solid #333;
+            padding-bottom: 2px;
+        }
+
+        .social-link:hover {
+            color: #aaa;
+        }
+
+        .scroll-container {
+            padding-top: 200px;
+        }
+
+        .scene {
+            min-height: 50vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 1.5s ease, transform 1.5s ease;
+        }
+
+        .scene.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .scene-image {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.4;
+            filter: grayscale(60%) contrast(1.2);
+        }
+
+        .scene-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 2rem;
+            max-width: 800px;
+            background: rgb(255 255 255 / 28%);
+            border: 1px solid #333;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
+        }
+
+        .scene-text {
+            font-size: 1.2rem;
+            line-height: 2;
+            letter-spacing: 2px;
+            color: #999;
+            opacity: 0;
+            animation: fadeInText 2s ease forwards;
+            animation-delay: 0.5s;
+        }
+
+        .scene-text .line {
+            display: block;
+            margin: 1rem 0;
+            opacity: 0;
+            animation: fadeInLine 1s ease forwards;
+        }
+
+        .scene-text .line:nth-child(1) { animation-delay: 1s; }
+        .scene-text .line:nth-child(2) { animation-delay: 1.5s; }
+        .scene-text .line:nth-child(3) { animation-delay: 2s; }
+        .scene-text .line:nth-child(4) { animation-delay: 2.5s; }
+
+        @keyframes fadeInText {
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInLine {
+            to { opacity: 1; }
+        }
+
+        .terminal-cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background: #999;
+            animation: blink 1s infinite;
+            margin-left: 5px;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .final-panel {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 1.5s ease, transform 1.5s ease;
+        }
+
+        .final-panel.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .simulation-panel {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #333;
+            padding: 3rem;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.95);
+        }
+
+        .panel-title {
+            font-size: 1.5rem;
+            color: #999;
+            letter-spacing: 3px;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+        }
+
+        .check-in-btn {
+            background: #1a1a1a;
+            border: 2px solid #444;
+            color: #999;
+            padding: 1rem 2rem;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            margin: 1rem 0;
+        }
+
+        .check-in-btn:hover {
+            background: #222;
+            border-color: #666;
+            box-shadow: 0 0 20px rgba(100, 100, 100, 0.3);
+        }
+
+        .check-in-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status-message {
+            margin-top: 2rem;
+            font-size: 1rem;
+            color: #888;
+            letter-spacing: 1px;
+            min-height: 60px;
+            line-height: 1.8;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 2px;
+            background: #222;
+            margin-top: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #666;
+            width: 0;
+            transition: width 3s linear;
+        }
+
+        .verdict {
+            margin-top: 2rem;
+            font-size: 1.1rem;
+            color: #aaa;
+            letter-spacing: 2px;
+            border-top: 1px solid #333;
+            padding-top: 1rem;
+        }
+
+        .ambient-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, transparent 0%, #fdfdfd 100%);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* Fallback styling for when images don't load */
+        .scene-image.fallback {
+            background: linear-gradient(45deg, #1a1a1a 0%, #2a2a2a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #444;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-overlay"></div>
+    
+    <header class="header">
+        <div class="logo-container">
+    <div class="logo">
+        <img src="WE DGAF IF THERE IS NO VOLUME.png" alt="Loss Line">
+    </div>
+            <h1 class="title">Apeport Security</h1>
+            <a href="https://x.com/ApeportSecurity" target="_blank" class="social-link">@ApeportSecuritySol</a>
+        </div>
+    </header>
+
+    <div class="scroll-container">
+        <section class="scene" data-scene="1">
+            <!-- Replace with your actual image path -->
+            <img src="WE DGAF IF THERE IS NO VOLUME (2).png" alt="Security Terminal" class="scene-image" onerror="handleImageError(this)">
+            <div class="scene-content">
+                <div class="scene-text">
+                    <span class="line">&gt; System initialized.</span>
+                    <span class="line">&gt; Welcome to Apeport Security.</span>
+                    <span class="line">&gt; All passengers must proceed through inspection.</span>
+                    <span class="line">&gt; Non-compliance is not an option.<span class="terminal-cursor"></span></span>
+                </div>
+            </div>
+        </section>
+
+        <section class="scene" data-scene="2">
+            <!-- Replace with your actual image path -->
+            <img src="WE DGAF IF THERE IS NO VOLUME (3).png" alt="Wallet Verification" class="scene-image" onerror="handleImageError(this)">
+            <div class="scene-content">
+                <div class="scene-text">
+                    <span class="line">&gt; Passenger #1295 connected.</span>
+                    <span class="line">&gt; Wallet signature detected.</span>
+                    <span class="line">&gt; Declaring assets...</span>
+                    <span class="line">&gt; Please remain stationary.<span class="terminal-cursor"></span></span>
+                </div>
+            </div>
+        </section>
+
+        <section class="scene" data-scene="3">
+            <!-- Replace with your actual image path -->
+            <img src="WE DGAF IF THERE IS NO VOLUME (4).png" alt="Scanning Process" class="scene-image" onerror="handleImageError(this)">
+            <div class="scene-content">
+                <div class="scene-text">
+                    <span class="line">&gt; Security check in progress.</span>
+                    <span class="line">&gt; Scanning token manifest.</span>
+                    <span class="line">&gt; Irregularities detected.</span>
+                    <span class="line">&gt; Initiating confiscation protocol.<span class="terminal-cursor"></span></span>
+                </div>
+            </div>
+        </section>
+
+        <section class="scene" data-scene="4">
+            <!-- Replace with your actual image path -->
+            <img src="WE DGAF IF THERE IS NO VOLUME (5).png" alt="Confiscation Procedure" class="scene-image" onerror="handleImageError(this)">
+            <div class="scene-content">
+                <div class="scene-text">
+                    <span class="line">&gt; 10% confiscated for redistribution.</span>
+                    <span class="line">&gt; Assets redirected to authority vault.</span>
+                    <span class="line">&gt; This is standard procedure.</span>
+                    <span class="line">&gt; Resistance is futile.<span class="terminal-cursor"></span></span>
+                </div>
+            </div>
+        </section>
+
+
+        <section class="final-panel">
+            <div class="simulation-panel">
+                <div class="panel-title">Terminal Access</div>
+                <button class="check-in-btn" id="checkInBtn">Check In My Wallet</button>
+                <div class="status-message" id="statusMsg"></div>
+                <div class="progress-bar" id="progressBar" style="display: none;">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="verdict" id="verdict"></div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const scenes = document.querySelectorAll('.scene');
+        const finalPanel = document.querySelector('.final-panel');
+        const checkInBtn = document.getElementById('checkInBtn');
+        const statusMsg = document.getElementById('statusMsg');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const verdict = document.getElementById('verdict');
+
+        function checkScroll() {
+            const windowHeight = window.innerHeight;
+            const scrollY = window.scrollY;
+
+            scenes.forEach(scene => {
+                const sceneTop = scene.offsetTop;
+                const sceneHeight = scene.offsetHeight;
+                const sceneMiddle = sceneTop + sceneHeight / 2;
+
+                if (scrollY + windowHeight > sceneMiddle + 100) {
+                    scene.classList.add('visible');
+                }
+            });
+
+            const finalPanelTop = finalPanel.offsetTop;
+            if (scrollY + windowHeight > finalPanelTop + 200) {
+                finalPanel.classList.add('visible');
+            }
+        }
+
+        // Function to handle image loading errors
+        function handleImageError(img) {
+            img.classList.add('fallback');
+            const sceneNumber = img.closest('.scene').getAttribute('data-scene');
+            img.alt = `Scene ${sceneNumber} - Image not available`;
+            
+            // Create a text element to show in place of the image
+            const text = document.createElement('div');
+            text.textContent = `SCENE ${sceneNumber}`;
+            text.style.color = '#444';
+            text.style.fontSize = '1.5rem';
+            text.style.letterSpacing = '3px';
+            img.parentNode.insertBefore(text, img);
+            img.style.display = 'none';
+        }
+
+        window.addEventListener('scroll', checkScroll);
+        window.addEventListener('load', checkScroll);
+
+        checkInBtn.addEventListener('click', function() {
+            checkInBtn.disabled = true;
+            statusMsg.textContent = '> Wallet connected. Awaiting confiscation review...';
+            progressBar.style.display = 'block';
+            verdict.textContent = '';
+
+            setTimeout(() => {
+                progressFill.style.width = '100%';
+            }, 100);
+
+            setTimeout(() => {
+                const verdicts = [
+                    'CLEARED FOR TRAVEL.',
+                    '10% CONFISCATED — WELCOME TO APEPORT.',
+                    '15% CONFISCATED — IRREGULAR HOLDINGS DETECTED.',
+                    '5% CONFISCATED — ADMINISTRATIVE FEE APPLIED.',
+                    'CLEARED WITH CONDITIONS — MONITORING ENABLED.',
+                    '20% CONFISCATED — HIGH RISK PASSENGER.'
+                ];
+                
+                const randomVerdict = verdicts[Math.floor(Math.random() * verdicts.length)];
+                verdict.textContent = `> ${randomVerdict}`;
+                statusMsg.textContent = '> Processing complete.';
+                progressBar.style.display = 'none';
+                progressFill.style.width = '0';
+
+                setTimeout(() => {
+                    checkInBtn.disabled = false;
+                }, 2000);
+            }, 3200);
+        });
+    </script>
+</body>
+</html>
